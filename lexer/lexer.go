@@ -29,6 +29,15 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+// peekChar 함수는 다음에 나올 입력을 미리 살펴본다.
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 // NextToken gets a next token.
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
@@ -38,12 +47,22 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.ch {
 	case '=':
 		tok = newToken(token.ASSIGN, l.ch)
+
+		if next := l.peekChar(); next == '=' { // in case of "=="
+			l.readChar()
+			tok = token.Token{Type: token.EQ, Literal: "=="}
+		}
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
 		tok = newToken(token.BANG, l.ch)
+
+		if next := l.peekChar(); next == '=' { // in case of "!="
+			l.readChar()
+			tok = token.Token{Type: token.NOT_EQ, Literal: "!="}
+		}
 	case '/':
 		tok = newToken(token.SLASH, l.ch)
 	case '*':
